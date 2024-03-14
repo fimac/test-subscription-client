@@ -5,7 +5,6 @@ import {
   ApolloClient,
   InMemoryCache,
   ApolloProvider,
-  gql,
   HttpLink,
   split,
 } from "@apollo/client";
@@ -13,6 +12,16 @@ import {
 import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
 import { createClient } from "graphql-ws";
 import { getMainDefinition } from "@apollo/client/utilities";
+import { setContext } from "@apollo/client/link/context";
+
+const authLink = setContext((_, { headers }) => {
+  return {
+    headers: {
+      ...headers,
+      authorization: `Bearer <>`,
+    },
+  };
+});
 
 const wsLink = new GraphQLWsLink(
   createClient({
@@ -22,7 +31,7 @@ const wsLink = new GraphQLWsLink(
     },
   })
 );
-console.log("ws link");
+
 const httpLink = new HttpLink({
   uri: "http://localhost:4000/api/graphql",
 });
@@ -45,7 +54,7 @@ const splitLink = split(
 );
 
 const client = new ApolloClient({
-  link: splitLink,
+  link: authLink.concat(splitLink),
   cache: new InMemoryCache(),
 });
 

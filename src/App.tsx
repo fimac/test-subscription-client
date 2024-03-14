@@ -1,6 +1,6 @@
 import "./App.css";
 
-import { useSubscription, gql } from "@apollo/client";
+import { useQuery, useSubscription, gql } from "@apollo/client";
 
 const HOURLY_LOGS_SUBSCRIPTION = gql`
   subscription HourlyLogUpdate($workspaceId: String!) {
@@ -40,7 +40,24 @@ const TOP_QUERIES_WITH_MOST_ROWS_RETURNED_SUBSCRIPTION = gql`
   }
 `;
 
+const FREQUENT_QUERIES_QUERY = gql`
+  query FrequentQueries($workspaceId: String!) {
+    avgExecutionTime(workspaceId: $workspaceId) {
+      executionTime
+    }
+  }
+`;
+
 function LatestLogs() {
+  const { data: query_data, loading: query_loading } = useQuery(
+    FREQUENT_QUERIES_QUERY,
+    {
+      variables: { workspaceId: "7D3XJNYSPD52OOF4" },
+    }
+  );
+
+  console.log(query_data, "$$$$$$$$$");
+
   const { data: hl_data, loading: hourly_logs_loading } = useSubscription(
     HOURLY_LOGS_SUBSCRIPTION,
     {
